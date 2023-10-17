@@ -1,35 +1,15 @@
+import torch.nn as nn
+from torch.nn import functional as F
 from collections import OrderedDict
 
-import torch
-import torch.nn as nn
-import torchvision
-from torchvision import transforms
-from torchvision.io import read_image
-import torchvision.transforms.functional as F
-import json
-import random
 
-import numpy as np
-import torchvision.transforms
-from matplotlib import pyplot as plt
-from pathlib import Path
-import torch
-import torchvision.transforms.functional as ttf
-from torchvision.io import read_image
-from torch.nn import functional as nnf
-from torch.utils.data import DataLoader
-from torchvision import datasets, transforms
-from torch import optim
-from pathlib import Path
-import random
+class FCN(nn.Module):
+    """
+    自己实现FCN32s
 
-from torch.utils.data import Dataset, DataLoader
-from torch.utils.data.dataset import T_co
-from torchvision import transforms
-from torchvision.io import read_image
+    TODO 调整网络结构，验证模型可行性
+    """
 
-
-class MyFCN(nn.Module):
     def __init__(self):
         super().__init__()
         self.layer1 = nn.Sequential(OrderedDict([
@@ -86,42 +66,20 @@ class MyFCN(nn.Module):
         self.classifier = nn.Conv2d(in_channels=4096, out_channels=21, kernel_size=1, padding=0)
         for m in self.modules():
             if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
-                torch.nn.init.zeros_(m.weight)
+                nn.init.zeros_(m.weight)
 
     def forward(self, x):
         # 记录输入图像大小
         input_shape = x.shape[-2:]
-        # print(x.size())
         x = self.layer1(x)
-        # print(x.size())
         x = self.layer2(x)
-        # print(x.size())
         x = self.layer3(x)
-        # print(x.size())
         x = self.layer4(x)
-        # print(x.size())
         x = self.layer5(x)
-        # print(x.size())
         x = self.fc6(x)
-        # print(x.size())
         x = self.fc7(x)
-        # print(x.size())
         x = self.classifier(x)
-        # print(x.size())
         # 换变量名，否则指向相同空间会报错
         out = x.clone().detach().requires_grad_(True)
-        out = nnf.interpolate(out, size=input_shape, mode="bilinear", align_corners=False)
-        # print(x.size())
+        out = F.interpolate(out, size=input_shape, mode="bilinear", align_corners=False)
         return out
-
-
-if __name__ == "__main__":
-    model = MyFCN()
-    input = read_image("./data/Pascal VOC 2012/VOCdevkit/VOC2012/JPEGImages/2007_000027.jpg")
-    # transform = transforms.RandomCrop(224)
-    # input = transform(input)
-    input = transforms.functional.convert_image_dtype(input, torch.float)
-
-    model.eval()
-    output = model(input.unsqueeze(0))
-    # print(output.size())
