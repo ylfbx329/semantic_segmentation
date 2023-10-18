@@ -7,13 +7,19 @@ class FCN(nn.Module):
     """
     自己实现FCN32s
 
+    Args:
+        in_channels: 输入通道数
+        num_classes: 类别数
+
     TODO 调整网络结构，验证模型可行性
     """
 
-    def __init__(self):
+    def __init__(self, in_channels=3, num_classes=21):
         super().__init__()
+        self.in_channels = in_channels
+        self.num_classes = num_classes
         self.layer1 = nn.Sequential(OrderedDict([
-            ('conv1', nn.Conv2d(in_channels=3, out_channels=64, kernel_size=3, padding=100)),
+            ('conv1', nn.Conv2d(in_channels=self.in_channels, out_channels=64, kernel_size=3, padding=100)),
             ('relu1', nn.ReLU(inplace=True)),
             ('conv2', nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, padding=1)),
             ('relu2', nn.ReLU(inplace=True)),
@@ -63,7 +69,7 @@ class FCN(nn.Module):
             ('relu15', nn.ReLU(inplace=True)),
             ('dropout2', nn.Dropout(p=0.5, inplace=True))
         ]))
-        self.classifier = nn.Conv2d(in_channels=4096, out_channels=21, kernel_size=1, padding=0)
+        self.classifier = nn.Conv2d(in_channels=4096, out_channels=self.num_classes, kernel_size=1, padding=0)
         for m in self.modules():
             if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
                 nn.init.zeros_(m.weight)
