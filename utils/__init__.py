@@ -1,3 +1,3 @@
 from .voc import *
 
-__all__ = ["VOCDataset"]
+__all__ = ["VOCSegmentation"]

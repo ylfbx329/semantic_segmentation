@@ -5,8 +5,8 @@
 - VGG16
 - FCN
     - 32S
+- U-Net
 
 ## TODO
 
-- U-Net
 - DeepLab系列
